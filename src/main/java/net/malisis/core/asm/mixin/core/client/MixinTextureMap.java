@@ -44,7 +44,7 @@ import net.minecraftforge.fml.common.ProgressManager;
 public abstract class MixinTextureMap
 {
 	//capture atlas size
-	@Inject(method = "loadTextureAtlas", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT)
+	@Inject(method = "loadTextureAtlas", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT, remap = false)
 	private void onLoadTextureAtlas(IResourceManager resourceManager, CallbackInfo ci, int i, Stitcher stitcher, int j, int k, ProgressManager.ProgressBar bar)
 	{
 		Icon.BLOCK_TEXTURE_WIDTH = stitcher.getCurrentWidth();

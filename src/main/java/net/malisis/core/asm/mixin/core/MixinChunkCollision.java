@@ -67,7 +67,9 @@ public class MixinChunkCollision
 		@Inject(method = "onItemUse",
 				at = @At(value = "INVOKE", target = "net/minecraft/item/ItemBlock.getMetadata(I)I"),
 				locals = LocalCapture.CAPTURE_FAILSOFT,
-				cancellable = true)
+				cancellable = true,
+				remap = false
+		)
 		private void onOnItemUse(EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ, CallbackInfoReturnable<EnumActionResult> cir, IBlockState iblockstate, Block block, ItemStack itemstack)
 		{
 			if (!ChunkCollision.get().canPlaceBlockAt(player, world, pos, hand, side))
@@ -86,7 +88,7 @@ public class MixinChunkCollision
 		@Shadow
 		public EntityPlayerMP player;
 
-		@Inject(method = "processPlayerDigging", at = @At(value = "HEAD"))
+		@Inject(method = "processPlayerDigging", at = @At(value = "HEAD"), remap = false)
 		private void captureBlockPos(CPacketPlayerDigging packet, CallbackInfo ci)
 		{
 			pos = packet.getPosition();
@@ -98,7 +100,9 @@ public class MixinChunkCollision
 		@ModifyVariable(method = "processPlayerDigging",
 						ordinal = 3, // double d3, using index = 10
 						at = @At(value = "STORE", ordinal = 0), // first STORE of double d3
-						require = 1)
+						require = 1,
+						remap = false
+		)
 		private double onPlayerDigging(double distance)
 		{
 			if (world.getBlockState(pos).getBlock() instanceof IChunkCollidable)
@@ -114,7 +118,7 @@ public class MixinChunkCollision
 
 		//because rayTraceBlocks mutate the src of the raytrace while iterating, when need to cache the parameters first
 		@Inject(method = "rayTraceBlocks(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;ZZZ)Lnet/minecraft/util/math/RayTraceResult;",
-				at = @At(value = "HEAD"))
+				at = @At(value = "HEAD"), remap = false)
 		private void setInfos(Vec3d src, Vec3d dest, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock, CallbackInfoReturnable<RayTraceResult> cir)
 		{
 			if (src != null && dest != null)
@@ -126,7 +130,9 @@ public class MixinChunkCollision
 		//before each return, we check if our rayTrace (against IChunkCollidable) yeild a result closer to src, if so, use that result
 		@Inject(method = "rayTraceBlocks(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;ZZZ)Lnet/minecraft/util/math/RayTraceResult;",
 				at = @At(value = "RETURN"),
-				cancellable = true)
+				cancellable = true,
+				remap = false
+		)
 		private void onRayTraceBlocks(Vec3d src, Vec3d dest, boolean stopOnLiquid, boolean ignoreBlockWithoutBoundingBox, boolean returnLastUncollidableBlock, CallbackInfoReturnable<RayTraceResult> cir)
 		{
 			if (infos == null)

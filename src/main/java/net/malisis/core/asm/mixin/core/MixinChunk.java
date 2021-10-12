@@ -46,7 +46,9 @@ public class MixinChunk
 
 	@Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Lnet/minecraft/block/state/IBlockState;",
 			at = @At("HEAD"),
-			cancellable = true)
+			cancellable = true,
+			remap = false
+	)
 	private void preSetBlock(BlockPos pos, IBlockState newState, CallbackInfoReturnable<IBlockState> cir)
 	{
 		Chunk chunk = (Chunk) (Object) this;
@@ -57,7 +59,9 @@ public class MixinChunk
 	}
 
 	@Inject(method = "setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;)Lnet/minecraft/block/state/IBlockState;",
-			at = @At("TAIL"))
+			at = @At("TAIL"),
+			remap = false
+	)
 	private void postSetBlock(BlockPos pos, IBlockState newState, CallbackInfoReturnable<IBlockState> cir)
 	{
 		Registries.processPostSetBlock((Chunk) (Object) this, pos, oldState, newState);

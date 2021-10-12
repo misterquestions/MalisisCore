@@ -1,98 +1,101 @@
 buildscript {
 	repositories {
+		maven { url = 'https://files.minecraftforge.net/maven' }
+		maven { url = 'https://repo.spongepowered.org/maven' }
+		jcenter()
 		mavenCentral()
-		maven {
-			name = 'sonatype-nexus-public'
-			url = 'https://oss.sonatype.org/content/repositories/public/'
-		}
-		maven {
-			name = 'forge-repo'
-			url = 'http://files.minecraftforge.net/maven/'
-		}
-		maven {
-			name = 'sponge'
-			url = 'http://repo.spongepowered.org/maven'
-		}
 	}
 	dependencies {
-		classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+		classpath 'net.minecraftforge.gradle:ForgeGradle:3.+'
 		classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-		classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.0'
 	}
 }
 
-// Gradle plugins
-plugins {
-	id "maven"
-	id "signing"
-	id "com.matthewprenger.cursegradle" version "1.0.9"
-}
+apply plugin: 'net.minecraftforge.gradle'
+// Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
+apply plugin: 'eclipse'
+apply plugin: 'maven-publish'
 
-apply plugin: 'net.minecraftforge.gradle.forge'
-apply plugin: 'org.spongepowered.mixin'
-apply plugin: 'com.github.johnrengelman.shadow'
-
-// Project repositories
-repositories {
-	mavenLocal()
-	mavenCentral()
-	maven {
-		name = 'sonatype-nexus-public'
-		url = 'https://oss.sonatype.org/content/repositories/public/'
-	}
-	maven {
-		name = 'sponge'
-		url = 'http://repo.spongepowered.org/maven'
-	}
-}
-
-// Project dependencies
-dependencies {
-	    compile('org.spongepowered:mixin:0.7.4-SNAPSHOT') {
-        exclude module: 'asm-commons'
-        exclude module: 'asm-tree'
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'log4j-core'
-    }
-}
-
-// Gradle default tasks
-defaultTasks 'build', 'install'
-
-// Basic project information
-group = 'net.malisis'
-archivesBaseName = 'malisiscore'
 version = '1.12.2-6.5.0-SNAPSHOT'
-ext.packaging = 'jar'
+group = 'net.malisis' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = 'malisiscore'
 
 // Extended project information
 ext.projectName = 'MalisisCore'
 ext.description = 'MalisisCore is a framework dedicated to simplify many processes required during a mod development.'
-ext.url = 'http://github.com/Ordinastie/MalisisCore'
+ext.url = 'https://github.com/misterquestions/MalisisCore'
 
-
-// Compilation variables
 ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
-ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
-ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+compileJava.options.encoding = 'UTF-8'
 
-// MinecraftForge version
 minecraft {
-    version = "1.12.2-14.23.1.2589"
-    mappings = "snapshot_20180114"
-	
-	if(file("../../run").exists()) 
-		runDir = "../../run/assets"
-	else
-		runDir = "run/assets"
-	
-	
-	replace '${version}', project.version
-    replaceIn "MalisisCore.java"
+	// The mappings can be changed at any time, and must be in the following format.
+	// snapshot_YYYYMMDD   Snapshot are built nightly.
+	// stable_#            Stables are built at the discretion of the MCP team.
+	// Use non-default mappings at your own risk. they may not always work.
+	// Simply re-run your setup task after changing the mappings to update your workspace.
+	//mappings channel: 'snapshot', version: '20171003-1.12'
+	mappings channel: 'snapshot', version: '20171003-1.12'
+	// makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
+
+	// accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+
+	// Default run configurations.
+	// These can be tweaked, removed, or duplicated as needed.
+	runs {
+		client {
+			workingDirectory project.file('run')
+
+			// Recommended logging data for a userdev environment
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+			// Recommended logging level for the console
+			property 'forge.logging.console.level', 'debug'
+		}
+
+		server {
+
+			// Recommended logging data for a userdev environment
+			property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+
+			// Recommended logging level for the console
+			property 'forge.logging.console.level', 'debug'
+		}
+	}
+}
+
+repositories {
+	jcenter()
+	maven { url = 'https://repo.spongepowered.org/maven' }
+}
+
+dependencies {
+	// Specify the version of Minecraft to use, If this is any group other then 'net.minecraft' it is assumed
+	// that the dep is a ForgeGradle 'patcher' dependency. And it's patches will be applied.
+	// The userdev artifact is a special name and will get all sorts of transformations applied to it.
+	minecraft "net.minecraftforge:forge:$minecraft_version"
+
+	// You may put jars on which you depend on in ./libs or you may define them like so..
+	// compile "some.group:artifact:version:classifier"
+	// compile "some.group:artifact:version"
+
+	// Real examples
+	// compile 'com.mod-buildcraft:buildcraft:6.0.8:dev'  // adds buildcraft to the dev env
+	// compile 'com.googlecode.efficient-java-matrix-library:ejml:0.24' // adds ejml to the dev env
+
+	// The 'provided' configuration is for optional dependencies that exist at compile-time but might not at runtime.
+	// provided 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+	// These dependencies get remapped to your current MCP mappings
+	// deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+
+	// For more info...
+	// http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
+	// http://www.gradle.org/docs/current/userguide/dependency_management.html
+	compile 'org.spongepowered:spongeapi:7.1.0'
+	compile 'org.spongepowered:mixin:0.7.11-SNAPSHOT'
 }
 
 sourceSets {
@@ -104,7 +107,7 @@ sourceSets {
 // Filter, process, and include resources
 processResources {
 	inputs.property "version", version
-	inputs.property "mcversion", project.minecraft.version
+	inputs.property "mcversion", "$minecraft_version"
 
 	// Include in final JAR
 	from 'LICENSE.txt'
@@ -116,156 +119,46 @@ processResources {
 				'description': project.ext.description,
 				'version': version,
 				'buildNumber': buildNumber,
-				'mcversion': minecraft.version,
+				'mcversion': "$minecraft_version",
 				'url': url
 	}
 }
 
+// Example for how to get properties into the manifest for reading by the runtime..
 jar {
-    classifier 'base'
 	manifest {
-		attributes  "Built-By": "Ordinastie",
-					"Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
-					"Implementation-Title": name,
-					"Implementation-Version": version,
-					"Implementation-Vendor": url,
-					"FMLCorePlugin": "net.malisis.core.asm.MalisisCorePlugin",
-					"FMLCorePluginContainsFMLMod": true,
-					"ForceLoadAsMod": true,
-					"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
-					"TweakOrder": 0,
-					"MixinConfigs": "mixins.malisiscore.core.json",
-					"FMLAT": "malisiscore_at.cfg"
+		attributes([
+				"Built-By": "Ordinastie",
+				"Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+				"Implementation-Title": name,
+				"Implementation-Version": version,
+				"Implementation-Vendor": url,
+				"FMLCorePlugin": "net.malisis.core.asm.MalisisCorePlugin",
+				"FMLCorePluginContainsFMLMod": true,
+				"ForceLoadAsMod": true,
+				"TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+				"TweakOrder": 0,
+				"MixinConfigs": "mixins.malisiscore.core.json",
+				"FMLAT": "malisiscore_at.cfg"
+		])
 	}
 }
 
-if (JavaVersion.current().isJava8Compatible()) {
-	tasks.withType(Javadoc) {
-		// disable the crazy super-strict doclint tool in Java 8
-		options.addStringOption('Xdoclint:none', '-quiet')
-	}
-}
+// Example configuration to allow publishing using the maven-publish task
+// This is the preferred method to reobfuscate your jar file
+jar.finalizedBy('reobfJar')
+// However if you are in a multi-project build, dev time needs unobfed jar files, so you can delay the obfuscation until publishing by doing
+//publish.dependsOn('reobfJar')
 
-// Javadoc JAR generation
-task javadocJar(type: Jar, dependsOn: javadoc) {
-	classifier = 'javadoc'
-	from 'build/docs/javadoc'
-}
-
-// Source JAR generation
-task sourcesJar(type: Jar) {
-	classifier = 'sources'
-	from sourceSets.main.java.srcDirs
-}
-
-// Create a JAR based on deobfuscated code
-task deobfJar(type: Jar) {
-	manifest.from jar.manifest
-	from sourceSets.main.output
-	classifier = 'dev'
-}
-
-shadowJar {
-	mainSpec.sourcePaths.clear()
-	dependsOn reobfJar
-	classifier ''
-	exclude 'dummyThing'
-	dependencies {
-		include dependency('org.spongepowered:mixin')
-	}
-	afterEvaluate {
-		from zipTree(reobfJar.jar)
-	}
-}
-
-makeStart {
-    // TODO do this properly with FG2
-    addReplacement("parseArgs(args);", "parseArgs(args); String __malisis_coremodProp = System.getProperty(\"fml.coreMods.load\", \"\");" +
-            "__malisis_coremodProp += \"net.malisis.core.asm.MalisisCorePlugin\";" +
-            "System.setProperty(\"fml.coreMods.load\", __malisis_coremodProp);")
-}
-
-
-// Set all artifacts
-artifacts {
-	archives shadowJar, deobfJar, sourcesJar, javadocJar
-}
-
-// Deployment signing
-signing {
-	// Check if uploadArchives task is used
-	required { gradle.taskGraph.hasTask("uploadArchives") }
-	
-	// Sign JAR artifacts
-	sign configurations.archives
-}
-
-// Artifact deployment
-uploadArchives {
-	repositories.mavenDeployer {
-	
-	 	// Sign Maven POM
-		beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-	
-		def username = project.hasProperty('sonatypeUsername') ? project.getProperty('sonatypeUsername') : System.getenv("sonatypeUsername");
-		def password = project.hasProperty('sonatypePassword') ? project.getProperty('sonatypePassword') : System.getenv("sonatypePassword");
-
-		snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots") {
-			authentication(userName: username, password: password)
-		}
-		
-		repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2") {
-			authentication(userName: username, password: password)
-		}
-
-		// Maven POM generation
-		pom.project {
-			name projectName
-			artifactId archivesBaseName
-			packaging packaging
-			url url
-			description project.ext.description
-
-			scm {
-				connection 'scm:git:git://github.com/Ordinastie/MalisisCore.git'
-				developerConnection 'scm:git:ssh://git@github.com:Ordinastie/MalisisCore.git'
-				url 'https://github.com/Ordinastie/MalisisCore'
-			}
-
-			licenses {
-				license {
-					name 'The MIT License'
-					url 'http://www.tldrlegal.com/license/mit-license'
-					distribution 'repo'
-				}
-			}
-
-			developers {
-				developer {
-					id 'Ordinastie'
-					name 'Ordinastie'
-				}
-			}
-
-			issueManagement {
-				system 'github'
-				url 'https://github.com/Ordinastie/MalisisCore/issues'
-			}
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			artifact jar
 		}
 	}
-}
-
-if (project.hasProperty('curseapi')) {
-	curseforge {
-		apiKey = curseapi
-		project {
-			id = '223896'
-			releaseType = 'release'
-			
-			mainArtifact shadowJar
-			addArtifact deobfJar
-			addArtifact sourcesJar
-			addArtifact javadocJar			   		
+	repositories {
+		maven {
+			url "file:///${project.projectDir}/mcmodsrepo"
 		}
 	}
 }

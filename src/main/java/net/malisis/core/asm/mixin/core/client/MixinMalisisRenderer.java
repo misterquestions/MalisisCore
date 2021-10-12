@@ -60,7 +60,9 @@ public class MixinMalisisRenderer
 				at = @At(	value = "INVOKE",
 							target = "Lnet/minecraft/block/state/IBlockState;getRenderType()Lnet/minecraft/util/EnumBlockRenderType;"),
 				cancellable = true,
-				locals = LocalCapture.CAPTURE_FAILSOFT)
+				locals = LocalCapture.CAPTURE_FAILSOFT,
+				remap = false
+		)
 		private void onRenderBlock(IBlockState state, BlockPos pos, IBlockAccess world, BufferBuilder buffer, CallbackInfoReturnable<Boolean> cir)
 		{
 			CallbackResult<Boolean> cb = Registries.processRenderBlockCallbacks(buffer, world, pos, state);
@@ -74,7 +76,9 @@ public class MixinMalisisRenderer
 	{
 		@Inject(method = "renderModel(Lnet/minecraft/client/renderer/block/model/IBakedModel;ILnet/minecraft/item/ItemStack;)V",
 				at = @At("HEAD"),
-				cancellable = true)
+				cancellable = true,
+				remap = false
+		)
 		private void onRenderModel(IBakedModel model, int color, ItemStack itemStack, CallbackInfo ci)
 		{
 			if (Registries.renderItem(itemStack))
@@ -86,7 +90,7 @@ public class MixinMalisisRenderer
 	@Mixin(BlockModelShapes.class)
 	public static abstract class MixinBlockModelShapes
 	{
-		@Inject(method = "getTexture", at = @At("HEAD"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT)
+		@Inject(method = "getTexture", at = @At("HEAD"), cancellable = true, locals = LocalCapture.CAPTURE_FAILSOFT, remap = false)
 		private void onGetTexture(IBlockState state, CallbackInfoReturnable<TextureAtlasSprite> cir)
 		{
 			if (IComponent.getComponent(IIconProvider.class, state.getBlock()) != null)
