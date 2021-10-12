@@ -1,5 +1,6 @@
 buildscript {
 	repositories {
+		jcenter()
 		mavenCentral()
 		maven {
 			name = 'sonatype-nexus-public'
@@ -7,11 +8,11 @@ buildscript {
 		}
 		maven {
 			name = 'forge-repo'
-			url = 'http://files.minecraftforge.net/maven/'
+			url = 'https://files.minecraftforge.net/maven'
 		}
 		maven {
 			name = 'sponge'
-			url = 'http://repo.spongepowered.org/maven'
+			url = 'https://repo.spongepowered.org/maven'
 		}
 	}
 	dependencies {
@@ -34,6 +35,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 
 // Project repositories
 repositories {
+	jcenter()
 	mavenLocal()
 	mavenCentral()
 	maven {
@@ -42,13 +44,13 @@ repositories {
 	}
 	maven {
 		name = 'sponge'
-		url = 'http://repo.spongepowered.org/maven'
+		url = 'https://repo.spongepowered.org/maven'
 	}
 }
 
 // Project dependencies
 dependencies {
-	    compile('org.spongepowered:mixin:0.7.4-SNAPSHOT') {
+	compile('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
         exclude module: 'asm-commons'
         exclude module: 'asm-tree'
         exclude module: 'launchwrapper'
@@ -63,13 +65,13 @@ defaultTasks 'build', 'install'
 // Basic project information
 group = 'net.malisis'
 archivesBaseName = 'malisiscore'
-version = '1.12.2-6.5.0-SNAPSHOT'
+version = '1.12.2-6.5.1'
 ext.packaging = 'jar'
 
 // Extended project information
 ext.projectName = 'MalisisCore'
 ext.description = 'MalisisCore is a framework dedicated to simplify many processes required during a mod development.'
-ext.url = 'http://github.com/Ordinastie/MalisisCore'
+ext.url = 'https://github.com/misterquestions/MalisisCore'
 
 
 // Compilation variables
@@ -227,15 +229,15 @@ uploadArchives {
 			description project.ext.description
 
 			scm {
-				connection 'scm:git:git://github.com/Ordinastie/MalisisCore.git'
-				developerConnection 'scm:git:ssh://git@github.com:Ordinastie/MalisisCore.git'
+				connection 'scm:git:git://github.com/misterquestions/MalisisCore.git'
+				developerConnection 'scm:git:ssh://git@github.com:misterquestions/MalisisCore.git'
 				url 'https://github.com/Ordinastie/MalisisCore'
 			}
 
 			licenses {
 				license {
 					name 'The MIT License'
-					url 'http://www.tldrlegal.com/license/mit-license'
+					url 'https://www.tldrlegal.com/license/mit-license'
 					distribution 'repo'
 				}
 			}
@@ -249,7 +251,7 @@ uploadArchives {
 
 			issueManagement {
 				system 'github'
-				url 'https://github.com/Ordinastie/MalisisCore/issues'
+				url 'https://github.com/misterquestions/MalisisCore/issues'
 			}
 		}
 	}
